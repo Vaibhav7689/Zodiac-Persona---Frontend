@@ -1,0 +1,67 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main
+    # Removed paths since the repo is now purely the frontend
+
+jobs:
+  deploy-frontend:
+    name: Build & Deploy Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Production Assets
+        run: npm run build
+
+      - name: Compress Build output into zip
+        run: zip -r frontend-build.zip dist/
+
+      - name: Transfer Zip to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "frontend-build.zip"
+          target: "/tmp/"
+
+      - name: Extract, Deploy, and Cleanup via SSH
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Ensure target directory exists with right permissions
+            sudo mkdir -p /var/www/frontend
+            sudo chown -R $USER:$USER /var/www/frontend
+            
+            # Unzip compiled assets (overwriting existing files)
+            echo "Unzipping build files..."
+            sudo apt-get install unzip -y
+            # -j ignores the directory structure if it is nested, but the zip is generated as "dist/*"
+            # It's better to unzip straight into /var/www/frontend
+            unzip -o /tmp/frontend-build.zip -d /var/www/frontend
+            
+            # Cleanup artifact zip
+            echo "Cleaning up temporary zip files..."
+            rm /tmp/frontend-build.zip
+            
+            # Restart Nginx (adjust if using Apache)
+            sudo systemctl restart nginx
+            echo "Frontend Deployment Successful!"
