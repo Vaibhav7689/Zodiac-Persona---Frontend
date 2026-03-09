@@ -6,8 +6,6 @@ It features a completely professional, dark-mode immersive interface with dynami
 
 > **Note:** This frontend communicates with the Zodiac Persona Backend (FastAPI). Ensure both are running when deploying or developing.
 
----
-
 ## Features
 
 - **Cinematic Frontend:** A dynamic SPA (Single Page Application) with beautiful transitions, starfield animations, and glassmorphism styling.

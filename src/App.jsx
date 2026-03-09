@@ -3,6 +3,7 @@ import axios from 'axios';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import { Sparkles, MapPin, Moon, Sun, Navigation, Calendar, User, Compass, Infinity as InfinityIcon, Search, ArrowLeft } from 'lucide-react';
 import L from 'leaflet';
+import Navbar from './components/Navbar';
 
 // Fix leaflet marker icon issue in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -175,6 +176,7 @@ function App() {
     <>
       <StarField />
       <div className="app-container">
+        <Navbar />
 
         <header className="hero">
           <InfinityIcon size={64} className="hero-icon" strokeWidth={1} />
