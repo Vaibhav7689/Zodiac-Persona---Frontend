@@ -140,7 +140,7 @@ function App() {
       const offsetHours = parseFloat(formData.timezone);
 
       // Perform request immediately
-      const response = await axios.post('http://localhost:8000/api/astrology/calculate', {
+      const response = await axios.post('http://44.222.180.172:8000/api/astrology/calculate', {
         name: formData.name,
         dob: dateIso,
         latitude: position.lat,
