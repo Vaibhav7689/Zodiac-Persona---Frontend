@@ -1,0 +1,56 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Zip project
+        run: |
+          zip -r frontend.zip . -x "*.git*" "node_modules/*"
+
+      - name: Copy zip to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "frontend.zip"
+          target: "/var/www/frontend"
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/frontend
+
+            echo "Removing old files..."
+            rm -rf app
+            mkdir -p app
+
+            echo "Unzipping new build..."
+            unzip -o frontend.zip -d app
+
+            cd app
+
+            echo "Installing dependencies..."
+            npm install
+
+            echo "Building project..."
+            npm run build
+
+            echo "Restarting frontend with PM2..."
+            pm2 restart frontend || pm2 start npm --name frontend -- run preview
+
+            echo "Deployment completed!"
