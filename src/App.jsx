@@ -136,19 +136,18 @@ function App() {
       return;
     }
 
-    try {
-      const offsetHours = parseFloat(formData.timezone);
-      
-      const API_URL = import.meta.env.VITE_API_URL;
+   try {
+  const offsetHours = parseFloat(formData.timezone);
 
-      // Perform request immediately
-      const response = await axios.post('http://44.222.180.172:8000/api/astrology/calculate', {
-        name: formData.name,
-        dob: dateIso,
-        latitude: position.lat,
-        longitude: position.lng,
-        timezone_offset: offsetHours
-      });
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  const response = await axios.post("/api/astrology/calculate", {
+    name: formData.name,
+    dob: dateIso,
+    latitude: position.lat,
+    longitude: position.lng,
+    timezone_offset: offsetHours
+  });
 
       // Artificial Suspense! Wait at least 4.5 seconds to build thrill.
       setTimeout(() => {
