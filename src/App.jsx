@@ -138,6 +138,8 @@ function App() {
 
     try {
       const offsetHours = parseFloat(formData.timezone);
+      
+      const API_URL = import.meta.env.VITE_API_URL;
 
       // Perform request immediately
       const response = await axios.post('http://44.222.180.172:8000/api/astrology/calculate', {
