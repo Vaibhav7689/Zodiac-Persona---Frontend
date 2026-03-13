@@ -35,12 +35,13 @@ jobs:
           script: |
             cd /var/www/frontend
 
-            echo "Removing old files..."
+            echo "Cleaning old deployment..."
             rm -rf app
             mkdir -p app
 
-            echo "Unzipping new build..."
+            echo "Extracting new version..."
             unzip -o frontend.zip -d app
+            rm frontend.zip
 
             cd app
 
@@ -51,6 +52,10 @@ jobs:
             npm run build
 
             echo "Restarting frontend with PM2..."
-            pm2 restart frontend || pm2 start npm --name frontend -- run preview
+            pm2 delete frontend || true
+            pm2 start npm --name frontend -- run preview -- --host
+
+            echo "Saving PM2 process..."
+            pm2 save
 
             echo "Deployment completed!"
